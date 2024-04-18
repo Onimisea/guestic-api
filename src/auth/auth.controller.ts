@@ -6,38 +6,39 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ZodPipe } from 'src/pipes/zod-validation.pipe';
+import { signinSchema, signupSchema } from './auth-schema';
+import { SigninDto, SignupDto } from './dto/dtos.dto';
+import { User } from 'src/users/entities/user.entity';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('signup')
+  @ApiOperation({ summary: 'Signup a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully signed up' })
+  async signup(
+    @Body(new ZodPipe(signupSchema)) signupData: SignupDto,
+  ): Promise<User> {
+    return this.authService.signup(signupData);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('signin')
+  @ApiOperation({ summary: 'Sign in a user' })
+  @ApiResponse({ status: 200, description: 'User successfully signed in' })
+  async signin(
+    @Body(new ZodPipe(signinSchema)) signinData: SigninDto,
+    @Res() res: Response,
+  ) {
+    return this.authService.signin(signinData, res);
   }
 }
