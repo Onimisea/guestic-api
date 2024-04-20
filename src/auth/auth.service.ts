@@ -1,6 +1,7 @@
 import { EnvService } from './../env/env.service';
 import * as bcrypt from 'bcrypt';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,12 +12,14 @@ import { MongoRepository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
+import { ForgottenPasswordDto, PasswordResetDto } from './dto/dtos.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwt: JwtService,
     private envService: EnvService,
+    private jwtService: JwtService,
     @InjectRepository(User)
     private readonly userRepository: MongoRepository<User>,
   ) {}
@@ -96,5 +99,92 @@ export class AuthService {
     });
 
     return res.send('Signed in successfully!');
+  }
+
+  async handleForgottenPassword(
+    dto: ForgottenPasswordDto,
+  ): Promise<{ message: string; resetLink: string }> {
+    // Find the user by email
+    const user = await this.userRepository.findOneBy({ email: dto.email });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Generate password reset token and link
+    const payload = {
+      email: user.email,
+      firstname: user.firstname,
+    };
+    // Define options for the token, including expiration time and secret key
+    const options = {
+      expiresIn: '5m', // Token will expire in 5 minutes
+      secret: this.envService.get('JWT_SECRET'),
+    };
+
+    // Use JwtService to generate the token asynchronously
+    const resetToken = await this.jwtService.signAsync(payload, options);
+    const base_url = this.envService.get('BASE_URL_CLIENT');
+    const resetLink = `${base_url}/auth/reset-password?token=${resetToken}`;
+
+    return {
+      message:
+        'Password Reset link have been sent to your email. Check your email to proceed',
+      resetLink: resetLink,
+    };
+
+    // Send password reset link via email
+    // await this.mailService.sendPasswordResetEmail(user.email, resetLink);
+  }
+
+  async passwordReset(
+    token: string,
+    passwordResetDto: PasswordResetDto,
+  ): Promise<string> {
+    try {
+      // Verify the token and decode the payload
+      const options = {
+        secret: this.envService.get('JWT_SECRET'),
+      };
+      const payload = await this.jwtService.verifyAsync(token, options);
+
+      // Extract the user ID from the payload
+      const userEmail = payload.email;
+
+      // Find the user in the database
+      const user = await this.userRepository.findOneBy({ email: userEmail });
+
+      // Check if user exists
+      if (!user) {
+        throw new BadRequestException('Invalid token or user not found');
+      }
+
+      // Ensure the new password matches the confirmation password
+      if (passwordResetDto.password !== passwordResetDto.confirmPassword) {
+        throw new BadRequestException('Passwords do not match');
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(passwordResetDto.password, 10);
+
+      // Update the user's password in the database
+      user.password = hashedPassword;
+      const savedUser = await this.userRepository.save(user);
+      if (savedUser) {
+        return 'Password reset successful. Login with your new password';
+      }
+    } catch (error) {
+      // Handle JWT verification errors and any other errors
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Reset token has expired');
+      }
+
+      if (
+        error.name === 'JsonWebTokenError' ||
+        error.name === 'NotBeforeError'
+      ) {
+        throw new BadRequestException('Invalid token');
+      }
+    }
   }
 }
