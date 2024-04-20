@@ -38,8 +38,6 @@ export class AuthService {
     // Hash the password
     const hashedPassword = await bcrypt.hash(signupData.password, 10);
 
-    console.log(hashedPassword);
-
     // Create a new user instance
     const newUser = await this.userRepository.create({
       email: signupData.email,
