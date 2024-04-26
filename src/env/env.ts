@@ -7,5 +7,8 @@ export const envSchema = z.object({
   BASE_URL: z.string(),
   BASE_URL_CLIENT: z.string(),
   JWT_SECRET: z.string(),
+  HOSTAWAY_ACCT_ID: z.string(),
+  HOSTAWAY_API_KEY: z.string(),
+  HOSTAWAY_ACCESS_TOKEN: z.string(),
 });
 export type Env = z.infer<typeof envSchema>;
