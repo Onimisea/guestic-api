@@ -12,6 +12,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ListingsModule } from './listings/listings.module';
+import { ReservationsModule } from './reservations/reservations.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    ListingsModule,
+    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
