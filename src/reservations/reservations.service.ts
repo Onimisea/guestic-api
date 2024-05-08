@@ -195,4 +195,38 @@ export class ReservationsService {
       throw new BadRequestException(error.message);
     }
   }
+
+  async paymentCards(reservationId) {
+    const url = `https://api.hostaway.com/v1/paymentCards/${reservationId}`;
+    const authToken = this.envService.get('HOSTAWAY_ACCESS_TOKEN');
+
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    };
+
+    const options = {
+      method: 'GET',
+      headers,
+    };
+
+    try {
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch payment cards for the reservation: ${response.statusText}`,
+        );
+      }
+
+      const data = await response.json();
+      const results = data.result;
+
+      return results;
+    } catch (error) {
+      // Handle errors
+      console.log(error);
+      throw new BadRequestException(error.message);
+    }
+  }
 }
