@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateListingDto } from './dto/create-listing.dto';
+import { CreateListingDto, CreateReservationPriceDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { EnvService } from 'src/env/env.service';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -18,6 +18,80 @@ export class ListingsService {
     return listing;
   }
 
+  async getListingFeeSettings(listingId) {
+    const url = `https://api.hostaway.com/v1/listingFeeSettings/${listingId}?includeResources=1`;
+    const authToken = this.envService.get('HOSTAWAY_ACCESS_TOKEN');
+
+    // Define the request headers
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      // Make the GET request using fetch and wait for the response
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+      });
+
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new BadRequestException(`HTTP error! Status: ${response.status}`);
+      }
+
+      // Parse the response JSON
+      const responseData = await response.json();
+
+      // Log the response data
+      console.log(responseData);
+
+      return responseData;
+    } catch (error) {
+      // Handle errors
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async calculateReservationPrice(
+    listingId: string,
+    createReservationPriceDto: CreateReservationPriceDto,
+  ) {
+    const url = `https://api.hostaway.com/v1/listings/${listingId}/calendar/priceDetails?includeResources=1`;
+    const authToken = this.envService.get('HOSTAWAY_ACCESS_TOKEN');
+
+    // Define the request headers
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      // Make the POST request using fetch and wait for the response
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(createReservationPriceDto),
+      });
+
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new BadRequestException(`HTTP error! Status: ${response.status}`);
+      }
+
+      // Parse the response JSON
+      const responseData = await response.json();
+
+      // Log the response data
+      // console.log(responseData);
+
+      return responseData;
+    } catch (error) {
+      // Handle errors
+      throw new BadRequestException(error.message);
+    }
+  }
+
   private async fetchAllListings() {
     const url = 'https://api.hostaway.com/v1/listings?includeResources=1';
     const authToken = this.envService.get('HOSTAWAY_ACCESS_TOKEN');
@@ -34,6 +108,8 @@ export class ListingsService {
       const response = await axios.get(url, config);
       const res = response.data;
       const results = response.data.result;
+
+      // console.log(results)
 
       const rawListings = {
         status: res.status,
@@ -102,7 +178,6 @@ export class ListingsService {
       const res = response.data;
       const result = response.data.result;
 
-      
       const rawListing = {
         status: res.status,
         data: [],
