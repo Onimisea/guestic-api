@@ -44,12 +44,27 @@ export class ReservationsController {
     return this.reservationsService.findAll();
   }
 
+  @Get('payment-cards/:reservationId')
+  @ApiOperation({ summary: 'Get all payment cards for the reservation' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all payment cards for the reservation.',
+  })
+  @ApiParam({
+    name: 'reservationId',
+    description:
+      'The ID of the reservation whose payment cards are to be fetched.',
+  })
+  paymentCards(@Param('reservationId') reservationId: string) {
+    return this.reservationsService.paymentCards(reservationId);
+  }
+
   @Get(':reservationId')
   @ApiOperation({ summary: 'Get one reservation' })
   @ApiResponse({ status: 200, description: 'Returns one reservation.' })
   @ApiParam({
     name: 'reservationId',
-    description: 'The ID of the listing whose reservation price to calculate.',
+    description: 'The ID of the reservation to be fetched.',
   })
   findOne(@Param('reservationId') reservationId: string) {
     return this.reservationsService.findOne(reservationId);
