@@ -27,7 +27,10 @@ async function bootstrap() {
   SwaggerModule.setup(`api/docs`, app, document);
 
   app.enableCors({
-    origin: ['http://localhost:3000/'],
+    origin: [
+      'http://localhost:3000/',
+      'https://guestic.onrender.com/, http://guestic.onrender.com/',
+    ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
