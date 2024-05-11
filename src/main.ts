@@ -28,8 +28,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000/',
-      'https://guestic.onrender.com/, http://guestic.onrender.com/',
+      'http://localhost:3000',
+      'https://guestic.onrender.com', 'http://guestic.onrender.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [
