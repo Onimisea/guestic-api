@@ -9,7 +9,7 @@ import * as compression from 'compression';
 import * as express from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   const configService = app.get(EnvService);
   const port = configService.get('PORT');
@@ -28,8 +28,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000/',
-      'https://guestic.onrender.com/, http://guestic.onrender.com/',
+      'http://localhost:3000',
+      'https://guestic.onrender.com',
+      'http://guestic.onrender.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [
@@ -40,7 +41,7 @@ async function bootstrap() {
       'User-Agent',
       'Authorization',
     ],
-    exposedHeaders: ['Authorization'],
+    exposedHeaders: ['Authorization', 'Set-Cookie'],
     credentials: true,
   });
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EnvModule } from './env/env.module';
@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ListingsModule } from './listings/listings.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { CorsMiddleware } from './common/cors-middleware';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ReservationsModule } from './reservations/reservations.module';
       validate: (env) => envSchema.parse(env),
       isGlobal: true,
     }),
+
     EnvModule,
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),

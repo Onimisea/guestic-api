@@ -13,6 +13,7 @@ import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { ForgottenPasswordDto, PasswordResetDto } from './dto/dtos.dto';
+import * as cookie from 'cookie';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,14 @@ export class AuthService {
 
     if (existingUser) {
       throw new ConflictException('Email already in use. Please login.');
+    }
+
+    // Verify password criteria
+    if (!this.isPasswordValid(signupData.password)) {
+      // Password does not meet criteria
+      throw new BadRequestException(
+        'Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol.',
+      );
     }
 
     // Hash the password
@@ -88,15 +97,7 @@ export class AuthService {
     // Generate a JWT token
     const token = this.jwt.sign(userData, { secret: jwtSecret });
 
-    // Set the token as a cookie in the response headers
-    res.cookie('authToken', token, {
-      httpOnly: true, // Prevents JavaScript from accessing the cookie
-      secure: true, // Use `true` in production when using HTTPS
-      sameSite: 'strict', // Prevents cross-site request forgery attacks
-      maxAge: 3600000, // Set the cookie expiry time (e.g., 1 hour in milliseconds)
-    });
-
-    return res.send('Signed in successfully!');
+    return res.send({ message: 'Signed in successfully!', token });
   }
 
   async handleForgottenPassword(
@@ -184,5 +185,14 @@ export class AuthService {
         throw new BadRequestException('Invalid token');
       }
     }
+  }
+
+  private isPasswordValid(password: string): boolean {
+    // Regular expression to match password criteria
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
+    // Test if password meets criteria
+    return passwordRegex.test(password);
   }
 }
