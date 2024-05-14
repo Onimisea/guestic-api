@@ -31,6 +31,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'https://guestic.onrender.com',
       'http://guestic.onrender.com',
+      'https://guesticapp.onrender.com',
+      'http://guesticapp.onrender.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [

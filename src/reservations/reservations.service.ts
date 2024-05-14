@@ -56,12 +56,15 @@ export class ReservationsService {
       channelId: 2000,
       listingMapId: `${createReservationDto.listingMapId}`,
       source: 'Guestic Webapp',
-      guestName: createReservationDto.guestName,
-      guestEmail: createReservationDto.guestEmail,
+      guestName: `${createReservationDto.firstName} ${createReservationDto.lastName}`,
+      guestFirstName: createReservationDto.firstName,
+      guestLastName: createReservationDto.lastName,
+      guestEmail: createReservationDto.email,
       numberOfGuests: createReservationDto.numberOfGuests,
       arrivalDate: createReservationDto.arrivalDate,
       departureDate: createReservationDto.departureDate,
-      phone: createReservationDto.phone,
+      phone: createReservationDto.phoneNumber,
+      guestCountry: createReservationDto.country,
       totalPrice,
       financeField,
       ccNumber: createReservationDto.ccNumber,
@@ -80,17 +83,21 @@ export class ReservationsService {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        throw new Error(`Failed to create reservation: ${response.statusText}`);
+        return new BadRequestException(
+          `Failed to create reservation: ${response.statusText}`,
+        );
       }
 
       const data = await response.json();
       const results = data.result;
 
+      console.log(results);
+
       return results;
     } catch (error) {
       // Handle errors
       console.log(error);
-      throw new BadRequestException(error.message);
+      return new BadRequestException(error.message);
     }
   }
 

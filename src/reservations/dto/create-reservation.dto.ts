@@ -12,13 +12,22 @@ export class CreateReservationDto {
   listingMapId: number;
 
   @ApiProperty({
-    description: 'The name of the guest.',
-    example: 'Andrew Peterson',
+    description: 'The firstname of the guest.',
+    example: 'Andrew',
     required: true,
   })
   @IsString()
   @IsNotEmpty()
-  guestName: string;
+  firstName: string;
+
+  @ApiProperty({
+    description: 'The lastname of the guest.',
+    example: 'Andrew',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
 
   @ApiProperty({
     description: 'The email of the guest.',
@@ -27,7 +36,7 @@ export class CreateReservationDto {
   })
   @IsEmail()
   @IsNotEmpty()
-  guestEmail: string;
+  email: string;
 
   @ApiProperty({
     description: 'The number of guests.',
@@ -61,7 +70,7 @@ export class CreateReservationDto {
   })
   @IsString()
   @IsNotEmpty()
-  phone: string;
+  phoneNumber: string;
 
   @ApiProperty({
     description: 'The credit card number of the guest.',
@@ -107,4 +116,78 @@ export class CreateReservationDto {
   @IsString()
   @IsNotEmpty()
   cvc: string;
+
+  // Additional fields from the submitted data
+  @ApiProperty({
+    description: 'The birthdate of the guest.',
+    example: '19-May-2022',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  birthdate: string;
+
+  @ApiProperty({
+    description: 'The confirm email of the guest.',
+    example: 'hylydeg@mailinator.com',
+    required: true,
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  confirmEmail: string;
+
+  @ApiProperty({
+    description: 'The alternative phone number of the guest.',
+    example: '8034023726',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  alternativePhoneNumber: string;
+
+  // Additional fields from the submitted data
+  @ApiProperty({
+    description: 'The password for the account.',
+    example: 'Pa$$w0rd!',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @ApiProperty({
+    description: 'The confirmation password for the account.',
+    example: 'Pa$$w0rd!',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  confirmPassword: string;
+
+  @ApiProperty({
+    description: 'The first name for payment.',
+    example: 'Octavius',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  paymentFirstName: string;
+
+  @ApiProperty({
+    description: 'The last name for payment.',
+    example: 'Valentine',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  paymentLastName: string;
+
+  @ApiProperty({
+    description: 'The country of the guest.',
+    example: 'Aut in voluptas ut m',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  country: string;
 }
